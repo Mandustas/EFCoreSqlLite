@@ -1,6 +1,7 @@
 ﻿using EFCoreSqlLite.Model;
 using EFCoreSqlLite.Model.Views;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace EFCoreSqlLite.Infrastructure
 {
@@ -13,8 +14,9 @@ namespace EFCoreSqlLite.Infrastructure
         void UpdateBook(Book book);
         void DeleteBook(Book book);
         void CreateBooks(List<Book> books);
-        BookPublishingView GetBookPublishing(Book book);
-        List<TopAuthorsByPublishingView> GetTopAuthorsByPublishing(int publishingId);
+        Task<BookPublishingView> GetBookPublishing(Book book);
+        Task<List<TopAuthorsByPublishingView>> GetTopAuthorsByPublishingAsync(int publishingId);
+        Task<List<CoAuthorsView>> GetCoAuthors();
 
     }
 }

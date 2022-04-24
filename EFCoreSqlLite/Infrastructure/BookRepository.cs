@@ -1,11 +1,19 @@
 ﻿using EFCoreSqlLite.Model;
 using EFCoreSqlLite.Model.Views;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace EFCoreSqlLite.Infrastructure
 {
+    public class AuthorDto
+    {
+        public int AuthorId { get; set; }
+        public string AuthorName { get; set; }
+    }
+
     public class BookRepository : IBookRepository
     {
         private readonly BookContext _bookContext;
@@ -64,24 +72,22 @@ namespace EFCoreSqlLite.Infrastructure
 
         }
 
-        public BookPublishingView GetBookPublishing(Book book)
+        public async Task<BookPublishingView> GetBookPublishing(Book book)
         {
-            var bookPublishingView = new BookPublishingView();
-
-            bookPublishingView = _bookContext.Books.Select(p => new BookPublishingView
+            var bookPublishingView = await _bookContext.Books.Select(p => new BookPublishingView
             {
                 BookId = p.Id,
                 BookName = p.Name,
                 PublishingId = p.PublishingId,
                 PublishingName = p.Publishing.Name
-            }).FirstOrDefault(b => b.BookId == book.Id);
+            }).FirstOrDefaultAsync(b => b.BookId == book.Id);
 
             return bookPublishingView;
         }
 
-        public List<TopAuthorsByPublishingView> GetTopAuthorsByPublishing(int publishingId)
+        public async Task<List<TopAuthorsByPublishingView>> GetTopAuthorsByPublishingAsync(int publishingId)
         {
-            var topAuthorsByPublishingView = _bookContext.AuthorBook
+            var topAuthorsByPublishingView = await _bookContext.AuthorBook
                 .Join(
                 _bookContext.Authors,
                 ab => ab.AuthorId,
@@ -119,7 +125,7 @@ namespace EFCoreSqlLite.Infrastructure
                 {
                     Name = q.Result.Name,
                     BookCount = q.Count
-                }).ToList();
+                }).ToListAsync();
 
             for (int i = 0; i < topAuthorsByPublishingView.Count; i++)
             {
@@ -128,5 +134,59 @@ namespace EFCoreSqlLite.Infrastructure
 
             return topAuthorsByPublishingView;
         }
+
+        public async Task<List<CoAuthorsView>> GetCoAuthors()
+        {
+            var CoAuthors = new List<CoAuthorsView>();
+
+            var query = await _bookContext.AuthorBook
+                .Join(
+                _bookContext.Authors,
+                ab => ab.AuthorId,
+                a => a.Id,
+                (ab, a) => new
+                {
+                    AuthorId = a.Id,
+                    BookId = ab.BookId,
+                    AuthorName = a.Name,
+                })
+                .ToListAsync();
+
+            var booksIds = query.Select(q => q.BookId).Distinct().ToList();
+
+            List<AuthorDto> authorsDto = new List<AuthorDto>();
+            foreach (var id in booksIds)
+            {
+                authorsDto = await _bookContext.AuthorBook
+                .Where(q => q.BookId == id)
+                .Join(
+                _bookContext.Authors,
+                ab => ab.AuthorId,
+                a => a.Id,
+                (ab, a) => new AuthorDto
+                {
+                    AuthorId = a.Id,
+                    AuthorName = a.Name,
+                })
+                .ToListAsync();
+            }
+
+            //if (authorsDto.Count > 1)
+            //{
+            //    for (int i = 0; i < authorsDto.Count; i++)
+            //    {
+            //        for (int j = 1; j < authorsDto.Count; j++)
+            //        {
+            //            CoAuthors.Add(new CoAuthorsView
+            //            {
+                            
+            //            });
+            //        }
+            //    }
+            //}
+
+            return CoAuthors;
+        }
+
     }
 }

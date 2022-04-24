@@ -6,6 +6,7 @@ using EFCoreSqlLite.Model.Views;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace EFCoreSqlLite.Controllers
 {
@@ -70,23 +71,33 @@ namespace EFCoreSqlLite.Controllers
 
         [HttpGet]
         [Route("bookpublishing")]
-        public BookPublishingView GeBookPublishing(int bookId)
+        public async Task<BookPublishingView> GeBookPublishing(int bookId)
         {
             var book = _bookRepository.GetBookFromId(bookId);
             BookPublishingView result = new BookPublishingView();
             if (book != null)
             {
-                result = _bookRepository.GetBookPublishing(book);
+                result = await _bookRepository.GetBookPublishing(book);
             }
             return result;
         }
 
         [HttpGet]
         [Route("topauthors")]
-        public List<TopAuthorsByPublishingView> GetTopAuthors(int publishingId)
+        public async Task<List<TopAuthorsByPublishingView>> GetTopAuthors(int publishingId)
         {
             List<TopAuthorsByPublishingView> result = new List<TopAuthorsByPublishingView>();
-            result = _bookRepository.GetTopAuthorsByPublishing(publishingId);
+            result = await _bookRepository.GetTopAuthorsByPublishingAsync(publishingId);
+            return result;
+        }
+
+
+        [HttpGet]
+        [Route("coauthors")]
+        public async Task<List<CoAuthorsView>> GetCoAuthors()
+        {
+            List<CoAuthorsView> result = new List<CoAuthorsView>();
+            result = await _bookRepository.GetCoAuthors();
             return result;
         }
     }
