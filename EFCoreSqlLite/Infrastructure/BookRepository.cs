@@ -61,7 +61,7 @@ namespace EFCoreSqlLite.Infrastructure
 
         public void UpdateBook(Book book)
         {
-            
+
         }
 
         public BookPublishingView GetBookPublishing(Book book)
@@ -79,5 +79,54 @@ namespace EFCoreSqlLite.Infrastructure
             return bookPublishingView;
         }
 
+        public List<TopAuthorsByPublishingView> GetTopAuthorsByPublishing(int publishingId)
+        {
+            var topAuthorsByPublishingView = _bookContext.AuthorBook
+                .Join(
+                _bookContext.Authors,
+                ab => ab.AuthorId,
+                a => a.Id,
+                (ab, a) => new
+                {
+                    AuthorId = a.Id,
+                    BookId = ab.BookId,
+                    Name = a.Name,
+                })
+                .Join(
+                _bookContext.Books,
+                ab => ab.BookId,
+                b => b.Id,
+                (ab, b) => new
+                {
+                    ab.AuthorId,
+                    ab.Name,
+                    b.PublishingId
+                })
+                .Where(b => b.PublishingId == publishingId)
+                .GroupBy(t => new
+                {
+                    t.AuthorId,
+                    t.Name,
+                })
+                .Select(q => new
+                {
+                    Result = q.Key,
+                    Count = q.Count()
+                })
+                .OrderByDescending(q => q.Count)
+                .Take(10)
+                .Select(q => new TopAuthorsByPublishingView
+                {
+                    Name = q.Result.Name,
+                    BookCount = q.Count
+                }).ToList();
+
+            for (int i = 0; i < topAuthorsByPublishingView.Count; i++)
+            {
+                topAuthorsByPublishingView[i].Position = i + 1;
+            }
+
+            return topAuthorsByPublishingView;
+        }
     }
 }

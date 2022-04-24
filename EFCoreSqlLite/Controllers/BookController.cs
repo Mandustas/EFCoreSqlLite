@@ -80,5 +80,14 @@ namespace EFCoreSqlLite.Controllers
             }
             return result;
         }
+
+        [HttpGet]
+        [Route("topauthors")]
+        public List<TopAuthorsByPublishingView> GetTopAuthors(int publishingId)
+        {
+            List<TopAuthorsByPublishingView> result = new List<TopAuthorsByPublishingView>();
+            result = _bookRepository.GetTopAuthorsByPublishing(publishingId);
+            return result;
+        }
     }
 }

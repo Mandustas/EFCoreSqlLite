@@ -11,6 +11,7 @@ namespace EFCoreSqlLite.Infrastructure
         public DbSet<Author> Authors { get; set; }
         public DbSet<Book> Books { get; set; }
         public DbSet<Publishing> Publishing { get; set; }
+        public DbSet<AuthorBook> AuthorBook { get; set; }
 
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -35,7 +36,7 @@ namespace EFCoreSqlLite.Infrastructure
                 .HasForeignKey(pt => pt.BookId),
             j =>
             {
-                j.HasKey(t => new { t.AuthorId, t.BookId});
+                j.HasKey(pt => new { pt.AuthorId, pt.BookId});
                 j.ToTable("AuthorBook");
             });
 

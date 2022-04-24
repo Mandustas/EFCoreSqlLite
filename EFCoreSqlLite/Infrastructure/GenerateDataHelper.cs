@@ -65,6 +65,7 @@ namespace EFCoreSqlLite.Infrastructure
                     Publishing = publishingList[random.Next(0, publishingList.Count)],
                 });
             }
+            
             return books;
         }
 
@@ -92,7 +93,12 @@ namespace EFCoreSqlLite.Infrastructure
                 }
             }
 
-            return result;
+            return FirstUpper(result);
+        }
+
+        public static string FirstUpper(string str)
+        {
+            return str.Substring(0, 1).ToUpper() + (str.Length > 1 ? str.Substring(1) : "");
         }
     }
 }

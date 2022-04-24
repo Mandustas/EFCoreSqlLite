@@ -14,5 +14,7 @@ namespace EFCoreSqlLite.Infrastructure
         void DeleteBook(Book book);
         void CreateBooks(List<Book> books);
         BookPublishingView GetBookPublishing(Book book);
+        List<TopAuthorsByPublishingView> GetTopAuthorsByPublishing(int publishingId);
+
     }
 }
