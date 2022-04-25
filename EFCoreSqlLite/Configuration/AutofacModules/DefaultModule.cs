@@ -13,7 +13,6 @@ namespace EFCoreSqlLite.Modules
     {
         protected override void Load(ContainerBuilder builder)
         {
-            builder.RegisterType<Repo.ProductsRepo>().As<Repo.IProductsRepo>().SingleInstance();
             builder.RegisterType<BookRepository>().As<IBookRepository>().SingleInstance();
             builder.RegisterType<AuthorRepository>().As<IAuthorRepository>().SingleInstance();
             builder.RegisterType<BookContext>().AsSelf().SingleInstance();

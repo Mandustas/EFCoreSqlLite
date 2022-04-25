@@ -12,10 +12,6 @@ namespace EFCoreSqlLite.Profiles
     {
         public DefaultProfile()
         {
-            CreateMap<Model.Product, Dto.Product>();
-            CreateMap<Dto.UpdateProduct, Model.Product>();
-            CreateMap<Model.Product, Model.Product>();
-
             CreateMap<BookCreateDto, Book>();
             CreateMap<AuthorCreateDto, Author>();
         }

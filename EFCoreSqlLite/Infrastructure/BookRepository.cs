@@ -154,9 +154,9 @@ namespace EFCoreSqlLite.Infrastructure
 
             var booksIds = query.Select(q => q.BookId).Distinct().ToList();
 
-            List<AuthorDto> authorsDto = new List<AuthorDto>();
             foreach (var id in booksIds)
             {
+                List<AuthorDto> authorsDto = new List<AuthorDto>();
                 authorsDto = await _bookContext.AuthorBook
                 .Where(q => q.BookId == id)
                 .Join(
@@ -169,21 +169,47 @@ namespace EFCoreSqlLite.Infrastructure
                     AuthorName = a.Name,
                 })
                 .ToListAsync();
-            }
 
-            //if (authorsDto.Count > 1)
-            //{
-            //    for (int i = 0; i < authorsDto.Count; i++)
-            //    {
-            //        for (int j = 1; j < authorsDto.Count; j++)
-            //        {
-            //            CoAuthors.Add(new CoAuthorsView
-            //            {
-                            
-            //            });
-            //        }
-            //    }
-            //}
+                if (authorsDto.Count > 1)
+                {
+                    for (int i = 0; i < authorsDto.Count - 1; i++)
+                    {
+                        for (int j = i + 1; j < authorsDto.Count; j++)
+                        {
+                            CoAuthors.Add(new CoAuthorsView
+                            {
+                                IdOfFirstCoAuthor = authorsDto[i].AuthorId,
+                                NameOfFirstCoAuthor = authorsDto[i].AuthorName,
+                                IdOfSecondCoAuthor = authorsDto[j].AuthorId,
+                                NameOfSecondCoAuthor = authorsDto[j].AuthorName
+                            });
+                        }
+                    }
+                }
+            }
+            CoAuthors = CoAuthors
+            .GroupBy(t => new
+            {
+                t.IdOfFirstCoAuthor,
+                t.IdOfSecondCoAuthor,
+                t.NameOfFirstCoAuthor,
+                t.NameOfSecondCoAuthor
+            })
+            .Select(q => new
+            {
+                Result = q.Key,
+                Count = q.Count()
+            })
+            .OrderByDescending(q => q.Count)
+            .Take(20)
+            .Select(q => new CoAuthorsView
+            {
+                IdOfFirstCoAuthor = q.Result.IdOfFirstCoAuthor,
+                IdOfSecondCoAuthor = q.Result.IdOfSecondCoAuthor,
+                NameOfFirstCoAuthor = q.Result.NameOfFirstCoAuthor,
+                NameOfSecondCoAuthor = q.Result.NameOfSecondCoAuthor,
+                CommonBooks = q.Count
+            }).ToList();
 
             return CoAuthors;
         }
